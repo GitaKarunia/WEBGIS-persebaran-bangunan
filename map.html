@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WebGIS GeoJSON</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.20.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.20.0/mapbox-gl.js"></script>
+
+<style>
+body { margin: 0; padding: 0; font-family: Arial; }
+
+/* MAP */
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  opacity: 0;
+  transition: 1s;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  position:absolute;
+  top:10px;
+  right:10px;
+  z-index:2;
+  padding:10px;
+}
+
+/* INFO BOX */
+#info {
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  background:white;
+  padding:10px;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<!-- 🔙 BACK -->
+<button class="back-btn" onclick="goBack()">⬅ Back</button>
+
+<!-- ℹ️ INFO -->
+<div id="info">Arahkan kursor ke peta</div>
+
+<script>
+mapboxgl.accessToken = 'pk.eyJ1IjoiZ2l0YWthcnVuaWExMCIsImEiOiJjbW5sZ2E4NTIxOHFwMnJva2J5bjIxbWFjIn0.pfTjduttfPR4dua1YMVJXw';
+
+const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [110.3727, -7.77],
+    zoom: 18
+});
+
+map.addControl(new mapboxgl.NavigationControl());
+
+map.on('load', () => {
+
+  // fade in
+  document.getElementById('map').style.opacity = 1;
+
+  // ====== SOURCE & LAYER (ASLI KAMU) ======
+  map.addSource('bangunan', {
+    type: 'geojson',
+    data: 'yes.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-bangunan',
+    type: 'fill',
+    source: 'bangunan',
+    paint: {
+      'fill-color': 'brown',
+      'fill-opacity': 0.6,
+      'fill-outline-color': '#000000'
+    }
+  });
+
+  map.addSource('univ', {
+    type: 'geojson',
+    data: 'univ.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-univ',
+    type: 'fill',
+    source: 'univ',
+    paint: {
+      'fill-color': 'red',
+      'fill-opacity': 0.6,
+      'fill-outline-color': '#000'
+    }
+  });
+
+  map.addSource('rs', {
+    type: 'geojson',
+    data: 'rumah_sakit.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-rs',
+    type: 'fill',
+    source: 'rs',
+    paint: {
+      'fill-color': 'green',
+      'fill-opacity': 0.6,
+      'fill-outline-color': '#000'
+    }
+  });
+
+  map.addSource('masjid', {
+    type: 'geojson',
+    data: 'masjid.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-masjid',
+    type: 'fill',
+    source: 'masjid',
+    paint: {
+      'fill-color': 'blue',
+      'fill-opacity': 0.6,
+      'fill-outline-color': '#000'
+    }
+  });
+
+  map.addSource('residential', {
+    type: 'geojson',
+    data: 'residential.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-residential',
+    type: 'fill',
+    source: 'residential',
+    paint: {
+      'fill-color': 'gold',
+      'fill-opacity': 0.5,
+      'fill-outline-color': '#000'
+    }
+  });
+
+  map.addSource('roof', {
+    type: 'geojson',
+    data: 'roof.geojson'
+  });
+
+  map.addLayer({
+    id: 'layer-roof',
+    type: 'fill',
+    source: 'roof',
+    paint: {
+      'fill-color': 'purple',
+      'fill-opacity': 0.5,
+      'fill-outline-color': '#000'
+    }
+  });
+
+});
+
+// ====== POPUP DINAMIS ======
+
+map.on('click', 'layer-univ', (e) => {
+  const p = e.features[0].properties;
+  new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(`<h3>Universitas</h3><p>Nama: ${p.nama || '-'}</p>`)
+    .addTo(map);
+});
+
+map.on('click', 'layer-rs', (e) => {
+  const p = e.features[0].properties;
+  new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(`<h3>Rumah Sakit</h3><p>Nama: ${p.nama || '-'}</p>`)
+    .addTo(map);
+});
+
+map.on('click', 'layer-masjid', (e) => {
+  const p = e.features[0].properties;
+  new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML(`<h3>Masjid</h3><p>Nama: ${p.nama || '-'}</p>`)
+    .addTo(map);
+});
+
+map.on('click', 'layer-bangunan', (e) => {
+  new mapboxgl.Popup()
+    .setLngLat(e.lngLat)
+    .setHTML("<b>Bangunan Umum</b>")
+    .addTo(map);
+});
+
+// ====== HOVER EFFECT ======
+map.on('mouseenter', 'layer-bangunan', () => {
+  map.setPaintProperty('layer-bangunan', 'fill-color', 'orange');
+});
+map.on('mouseleave', 'layer-bangunan', () => {
+  map.setPaintProperty('layer-bangunan', 'fill-color', 'brown');
+});
+
+// ====== INFO BOX ======
+map.on('mousemove', 'layer-bangunan', () => {
+  document.getElementById('info').innerHTML = "Bangunan terdeteksi";
+});
+
+// ====== TOGGLE ======
+function toggleLayer(layerId) {
+  const visibility = map.getLayoutProperty(layerId, 'visibility');
+  map.setLayoutProperty(layerId, 'visibility',
+    visibility === 'none' ? 'visible' : 'none');
+}
+
+// ====== BACK ======
+function goBack() {
+  window.location.href = "index.html";
+}
+</script>
+
+<!-- CHECKBOX -->
+<div style="position:absolute;top:10px;left:10px;background:white;padding:10px;font-size:12px;z-index:1;">
+<b>Layer</b><br>
+<input type="checkbox" checked onclick="toggleLayer('layer-univ')"> Univ<br>
+<input type="checkbox" checked onclick="toggleLayer('layer-rs')"> RS<br>
+<input type="checkbox" checked onclick="toggleLayer('layer-masjid')"> Masjid<br>
+<input type="checkbox" checked onclick="toggleLayer('layer-residential')"> Residential<br>
+<input type="checkbox" checked onclick="toggleLayer('layer-roof')"> Roof<br>
+<input type="checkbox" checked onclick="toggleLayer('layer-bangunan')"> Bangunan<br>
+</div>
+
+<!-- LEGENDA -->
+<div style="position:absolute;bottom:20px;left:20px;background:white;padding:10px;font-size:12px;">
+<b>Legenda</b><br>
+<span style="color:red;">■</span> Universitas<br>
+<span style="color:green;">■</span> Rumah Sakit<br>
+<span style="color:blue;">■</span> Masjid<br>
+<span style="color:gold;">■</span> Residential<br>
+<span style="color:purple;">■</span> Roof<br>
+<span style="color:brown;">■</span> Bangunan
+</div>
+
+</body>
+</html>
