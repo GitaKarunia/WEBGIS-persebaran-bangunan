@@ -165,10 +165,7 @@ map.on('load', () => {
       'fill-outline-color': '#000'
     }
   });
-
-});
-
-  // Koordinat rumah kamu (ganti ini ya!)
+  // Koordinat rumah kamu
 const rumah = [110.37309409536917, -7.770405425238048]; // format: [longitude, latitude]
 
 // Tambah marker
@@ -178,6 +175,7 @@ new mapboxgl.Marker({ color: 'red' })
     new mapboxgl.Popup().setHTML("<h3>Rumah Saya</h3><p>Ini lokasi rumah saya</p>")
   )
   .addTo(map);
+});
 
 // ====== POPUP DINAMIS ======
 
